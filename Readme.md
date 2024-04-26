@@ -16,8 +16,10 @@ I will also add the following examples to deployment:
 ## how to use
 1. run the initial terragrunt run only on the following modules:
 * base/network
+* cloud9
+
+2. then connect to the created cloud9 environment, and clone this repository:
 * eks/cluster
-* eks/bastion
 
 2. get the kubeconfig via the following command:
 aws eks update-kubeconfig --region region-code --name my-cluster

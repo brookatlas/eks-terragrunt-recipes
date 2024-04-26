@@ -1,3 +1,7 @@
+include "root" {
+  path = find_in_parent_folders()
+}
+
 terraform {
   source = "../../../modules/base/network"
 }
@@ -33,6 +37,11 @@ inputs = {
         name = "private-subnet-b",
         cidr_block = "172.1.11.0/24"
         availability_zone = "il-central-1b"
+    },
+    {
+      name = "private-subnet-c"
+      cidr_block = "172.1.12.0/24"
+      availability_zone = "il-central-1c"
     }
   ]
 }

@@ -14,3 +14,9 @@ data "aws_ami" "ubuntu" {
 
   owners = ["099720109477"]
 }
+
+
+data "aws_security_group" "eks_main_security_group" {
+  count = var.create ? 1 : 0
+  id = var.cluster_security_group_id
+}
