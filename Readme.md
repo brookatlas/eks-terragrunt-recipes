@@ -33,5 +33,6 @@ aws eks update-kubeconfig --region region-code --name my-cluster
 1. make sure to config your username:
 git config --global user.name GITHUB_USERNAME
 git config --global user.email GITHUB_EMAIL
-2. when pushing a new branch, use the following scheme:
-git push --set-upstream origin BRANCH_NAME brookatlas GITHUB_TOKEN
+2. create a github access token for your service account user(classic)
+3. set it up in the following way:
+git remote set-url origin https://<GITHUB_TOKEN>@github.com/<REPO_OWNER>/<REPO_NAME>.git
