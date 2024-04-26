@@ -24,6 +24,6 @@ dependency "eks" {
 }
 
 inputs = {
-  create = false
+  create = true
   cluster_name = dependency.eks.outputs.cluster_name
 }

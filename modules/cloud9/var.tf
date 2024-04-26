@@ -14,3 +14,8 @@ variable "instance_type" {
   type = string
   default = "t3.medium"
 }
+
+variable "additional_security_groups_ids" {
+  type = list(string)
+  default = []
+}

@@ -244,34 +244,19 @@ resource "aws_iam_policy" "policy_for_alb_controller" {
   })
 }
 
-resource "aws_iam_role" "role_for_alb_controller" {
+module "role_for_alb_controller" {
   count = var.create ? 1 : 0
-  name  = "alb-ingress-controller-role"
-  assume_role_policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Effect" : "Allow",
-        "Principal" : {
-          "Federated" : "arn:aws:iam::111122223333:oidc-provider/oidc.eks.region-code.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE"
-        },
-        "Action" : "sts:AssumeRoleWithWebIdentity",
-        "Condition" : {
-          "StringEquals" : {
-            "oidc.eks.region-code.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE:aud" : "sts.amazonaws.com",
-            "oidc.eks.region-code.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE:sub" : "system:serviceaccount:kube-system:aws-load-balancer-controller"
-          }
-        }
-      }
-    ]
-  })
-}
+  source = "terraform-aws-modules/iam/aws//modules/iam-eks-role"
 
-resource "aws_iam_policy_attachment" "attach_alb_policy_to_role" {
-  count      = var.create ? 1 : 0
-  name = "attach-alb-policy-to-role"
-  policy_arn = aws_iam_policy.policy_for_alb_controller[count.index].arn
-  roles      = [aws_iam_role.role_for_alb_controller[count.index].name]
+  role_name = "alb-ingress-controller-role"
+
+  cluster_service_accounts = {
+    "${var.cluster_name}" = ["system:serviceaccount:kube-system:aws-load-balancer-controller"]
+  }
+  
+  role_policy_arns = {
+     "${aws_iam_policy.policy_for_alb_controller[count.index].name}" = aws_iam_policy.policy_for_alb_controller[count.index].arn
+  }
 }
 
 
@@ -284,7 +269,7 @@ resource "kubernetes_manifest" "aws_load_balancer_controller_service_account" {
       name=var.service_account_name,
       namespace="kube-system",
       annotations={
-        "eks.amazonaws.com/role-arn": aws_iam_role.role_for_alb_controller[count.index].arn
+        "eks.amazonaws.com/role-arn": "${module.role_for_alb_controller[count.index].iam_role_arn}"
       }
     }
   }
@@ -301,7 +286,7 @@ resource "helm_release" "aws-alb-ingress-controller" {
     templatefile("${path.module}/alb-controller-values.yaml", {
       clusterName          = var.cluster_name,
       serviceAccountName   = var.service_account_name,
-      createServiceAccount = true
+      createServiceAccount = false
     })
   ]
 
