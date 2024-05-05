@@ -9,8 +9,10 @@ module "eks" {
   vpc_id          = var.vpc_id
 
 
-  cluster_endpoint_private_access = true
-  cluster_endpoint_public_access  = false
+  cluster_endpoint_private_access = var.private_access
+  cluster_endpoint_public_access  = var.public_access
+
+  cluster_endpoint_public_access_cidrs = local.public_access_cidr_blocks
   enable_cluster_creator_admin_permissions = true
 
   subnet_ids                      = var.subnet_ids
@@ -18,7 +20,20 @@ module "eks" {
 
   cluster_addons = {
     coredns = {
-      most_recent = true
+      most_recent = true,
+      configuration_values = jsonencode({
+        computeType = "Fargate"
+        resources = {
+          limits = {
+            cpu = "0.25"
+            memory = "256M"
+          }
+          requests = {
+            cpu = "0.25"
+            memory = "256M"
+          }
+        }
+      })
     }
     kube-proxy = {
       most_recent = true
@@ -31,5 +46,32 @@ module "eks" {
     }
   }
 
+  fargate_profile_defaults = {
+    node_iam_role_additional_policies = {
+      additional = ""
+    }
+  }
+
+  fargate_profiles = {
+    karpenter = {
+      selectors = [
+        {
+          namespace = "karpenter"
+        }
+      ]
+    },
+    kube-system = {
+      selectors = [
+        {
+          namespace = "kube-system"
+        }
+      ]
+    }
+  }
+
   eks_managed_node_groups = { for node_group_name, node_group_config in var.managed_node_groups : node_group_name => node_group_config }
+
+  tags = {
+    "karpenter.sh/discovery" = var.cluster_name
+  }
 }

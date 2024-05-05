@@ -9,11 +9,22 @@ variable "public_access" {
     default = false
 }
 
-
 variable "private_access" {
     type = bool
     description = "enable private access for eks cluster"
     default = true
+}
+
+variable "public_access_cidr_blocks" {
+  type = list(string)
+  description = "allow specific public ip cidr blocks access to kube api server"
+  default = []
+}
+
+variable "allow_current_ip_public_access" {
+  type = bool
+  description = "allow caller current ip to access kube api server"
+  default = false
 }
 
 variable "managed_node_groups" {
@@ -44,4 +55,11 @@ variable "vpc_id" {
 variable "subnet_ids" {
   type        = list(string)
   description = "list of subnet id's where the pods will be scheduled onto"
+}
+
+
+locals {
+  current_ip_cidr_block_list = ["${chomp(data.http.myip[0].response_body)}/32"]
+  public_access_cidr_blocks = try(var.public_access_cidr_blocks, [])
+  final_public_access_cidr_blocks = concat(local.current_ip_cidr_block_list, local.public_access_cidr_blocks)
 }

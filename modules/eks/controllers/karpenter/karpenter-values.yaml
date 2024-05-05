@@ -1,0 +1,12 @@
+settings:
+  clusterName: ${clusterName}
+  clusterEndpoint: ${clusterEndpoint}
+  interruptionQueue: ${interruptionQueue}
+serviceAccount:
+  annotations:
+    eks.amazonaws.com/role-arn: ${karpenterRoleArn}
+tolerations:
+  - key: 'eks.amazonaws.com/compute-type'
+    operator: Equal
+    value: fargate
+    effect: "NoSchedule"

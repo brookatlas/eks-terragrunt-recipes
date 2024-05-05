@@ -23,19 +23,9 @@ inputs = {
 
   vpc_id = dependency.network.outputs.vpc_id
   subnet_ids = [dependency.network.outputs.private_subnet_ids[0], dependency.network.outputs.private_subnet_ids[1]]
+  public_access = true
+  private_access = true
+  allow_current_ip_public_access = true
 
-  managed_node_groups = {
-    test_private = {
-      min_size     = 1
-      max_size     = 10
-      desired_size = 2
-
-      instance_types = ["t3a.large", "t3.large"]
-      
-      capacity_type  = "SPOT"
-      iam_role_additional_policies = {
-        AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy" 
-      }
-    }
-  }
+  managed_node_groups = {}
 }

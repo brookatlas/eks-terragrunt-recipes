@@ -61,6 +61,7 @@ resource "aws_subnet" "private_subnet" {
     "managed-by" = "terraform"
     "Name" = var.private_subnet_configurations[count.index].name
     "kubernetes.io/role/internal-elb" = 1
+    "karpenter.sh/discovery": var.cluster_name
   }
 }
 

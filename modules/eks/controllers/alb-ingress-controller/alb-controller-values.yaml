@@ -1,4 +1,0 @@
-clusterName: ${clusterName}
-serviceAccount:
-  name: ${serviceAccountName}
-  create: ${createServiceAccount}

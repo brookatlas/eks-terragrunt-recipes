@@ -3,9 +3,9 @@ variable "create" {
     description = "to create the vpc or not."
 }
 
-
 variable "cluster_name" {
     type = string
+    description = "name of eks cluster name, for tagging subnets for karpenter"
 }
 
 variable "vpc_name" {
