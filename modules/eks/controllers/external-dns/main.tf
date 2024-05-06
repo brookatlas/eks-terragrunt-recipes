@@ -1,3 +1,14 @@
+terraform {
+  required_version = ">= 0.13"
+
+  required_providers {
+    kubectl = {
+      source  = "gavinbunney/kubectl"
+      version = ">= 1.7.0"
+    }
+  }
+}
+
 provider "helm" {
   kubernetes {
     host                   = var.cluster_endpoint
@@ -12,16 +23,17 @@ provider "helm" {
   }
 }
 
-provider "kubernetes" {
+provider "kubectl" {
   host                   = var.cluster_endpoint
   cluster_ca_certificate = base64decode(var.cluster_ca_certificate)
+  load_config_file = false
+
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
     args        = ["eks", "get-token", "--cluster-name", var.cluster_name]
     command     = "aws"
   }
 }
-
 resource "aws_iam_policy" "policy_for_external_dns" {
   count = var.create ? 1 : 0
   policy = jsonencode({
@@ -33,7 +45,7 @@ resource "aws_iam_policy" "policy_for_external_dns" {
           "route53:ChangeResourceRecordSets"
         ],
         "Resource" : [
-          "arn:aws:route53:::hostedzone/"
+          "arn:aws:route53:::hostedzone/*"
         ]
       },
       {
@@ -44,7 +56,7 @@ resource "aws_iam_policy" "policy_for_external_dns" {
           "route53:ListTagsForResource"
         ],
         "Resource" : [
-          ""
+          "*"
         ]
       }
     ]
@@ -81,38 +93,32 @@ resource "aws_iam_policy_attachment" "attach_external_dns_policy_to_role" {
   roles      = [aws_iam_role.role_for_external_dns[count.index].name]
 }
 
-
-resource "kubernetes_manifest" "external_dns_service_account" {
+resource "kubectl_manifest" "external_dns_service_account" {
   count = var.create ? 1 : 0
-  manifest = {
-    apiVersion = "v1",
-    kind       = "ServiceAccount",
-    metadata = {
-      name      = var.service_account_name,
-      namespace = "kube-system",
-      annotations = {
-        "eks.amazonaws.com/role-arn" : aws_iam_role.role_for_external_dns[count.index].arn
-      }
-    }
-  }
-
+  yaml_body = templatefile("external-dns-service-account.yaml", {
+    serviceAccountName=var.service_account_name,
+    namespace=var.namespace,
+    serviceAccountRoleArn=aws_iam_role.role_for_external_dns[count.index].arn
+  })
 }
 
-resource "helm_release" "aws-alb-ingress-controller" {
-  count      = var.create ? 1 : 0
-  name       = var.service_account_name
-  repository = "https://aws.github.io/eks-charts"
-  chart      = "aws-load-balancer-controller"
-  namespace  = "kube-system"
+resource "kubectl_manifest" "external_dns_cluster_role" {
+  count = var.create ? 1 : 0
+  yaml_body = templatefile("external-dns-cluster-role.yaml", {})
+}
 
-  values = [
-    templatefile("${path.module}/alb-controller-values.yaml", {
-      clusterName          = var.cluster_name,
-      serviceAccountName   = var.service_account_name,
-      createServiceAccount = false
-      vpcId                = var.vpc_id
-    })
-  ]
+resource "kubectl_manifest" "external_dns_cluster_role_binding" {
+  count = var.create ? 1 : 0
+  yaml_body = file("external-dns-cluster-role-binding.yaml")
 
-  depends_on = [kubernetes_manifest.aws_load_balancer_controller_service_account]
+  depends_on = [ kubectl_manifest.external_dns_cluster_role ]
+}
+
+resource "kubectl_manifest" "external_dns_deployment" {
+  count = var.create ? 1 : 0
+  yaml_body = templatefile("external-dns-deployment.yaml", {
+    domainFilter=var.domain_filter,
+    awsRegion=data.aws_region.current.name
+  })
+  depends_on = [ kubectl_manifest.external_dns_service_account ]
 }

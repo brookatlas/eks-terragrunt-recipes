@@ -295,8 +295,8 @@ resource "aws_iam_role" "role_for_alb_controller" {
         "Action" : "sts:AssumeRoleWithWebIdentity",
         "Condition" : {
           "StringEquals" : {
-            "oidc.eks.${data.aws_region.current.name}.amazonaws.com/id/${var.cluster_oidc_issuer_url}:aud" : "sts.amazonaws.com",
-            "oidc.eks.${data.aws_region.current.name}.amazonaws.com/id/${var.cluster_oidc_issuer_url}:sub" : "system:serviceaccount:${var.namespace}:aws-load-balancer-controller"
+            "${local.cluster_oidc_issuer_without_https}:aud" : "sts.amazonaws.com",
+            "${local.cluster_oidc_issuer_without_https}:sub" : "system:serviceaccount:${var.namespace}:aws-load-balancer-controller"
           }
         }
       }

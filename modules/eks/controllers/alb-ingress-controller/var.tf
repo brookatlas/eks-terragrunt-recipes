@@ -44,3 +44,8 @@ variable "vpc_id" {
     type = string
     description = "vpc_id used for the installation of alb controller"
 }
+
+
+locals {
+  cluster_oidc_issuer_without_https = replace(var.cluster_oidc_issuer_url, "https://", "")
+}
