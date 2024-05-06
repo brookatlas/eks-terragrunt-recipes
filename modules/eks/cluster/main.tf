@@ -12,7 +12,7 @@ module "eks" {
   cluster_endpoint_private_access = var.private_access
   cluster_endpoint_public_access  = var.public_access
 
-  cluster_endpoint_public_access_cidrs = local.public_access_cidr_blocks
+  cluster_endpoint_public_access_cidrs = var.allow_current_ip_public_access ? concat(["${chomp(data.http.myip[count.index].response_body)}/32"], var.public_access_cidr_blocks) : var.public_access_cidr_blocks
   enable_cluster_creator_admin_permissions = true
 
   subnet_ids                      = var.subnet_ids

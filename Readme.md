@@ -5,28 +5,23 @@ an example terragrunt stack for deploying a eks cluster, with the following basi
 * coredns
 * alb-ingress-controller
 * external-dns
-
-I will also add the following examples to deployment:
-1. karpenter
-2. jenkins as a service
-3. grafana
-4. grafana's tempo
+* ebs-csi
+* karpenter
 
 
 ## how to use
-1. run the initial terragrunt run only on the following modules:
+1. run the initial terragrunt run only on the live paths:
 * base/network
-* cloud9
-
-2. then connect to the created cloud9 environment, and clone this repository:
-* https://github.com/brookatlas/eks-terragrunt-recipes.git
-
-3. run the "setup-cloud9.sh" script
-4. you may now run "terragrunt run-all apply"
-5. get the kubeconfig via the following command:
+* eks/cluster
+2. then, make sure you have access to the cluster(able run the following 2 commands):
 aws eks update-kubeconfig --region region-code --name my-cluster
+kubectl get pods
+3. then run the rest of the modules under "cluster/controllers"
+4. happy k8s operations!
 
-6. happy k8s operations!
+
+### what is wip
+* external-dns
 
 
 # notes on accessing github:

@@ -56,10 +56,3 @@ variable "subnet_ids" {
   type        = list(string)
   description = "list of subnet id's where the pods will be scheduled onto"
 }
-
-
-locals {
-  current_ip_cidr_block_list = ["${chomp(data.http.myip[0].response_body)}/32"]
-  public_access_cidr_blocks = try(var.public_access_cidr_blocks, [])
-  final_public_access_cidr_blocks = concat(local.current_ip_cidr_block_list, local.public_access_cidr_blocks)
-}
