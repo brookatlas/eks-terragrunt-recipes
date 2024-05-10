@@ -77,8 +77,8 @@ resource "aws_iam_role" "role_for_external_dns" {
         "Action" : "sts:AssumeRoleWithWebIdentity",
         "Condition" : {
           "StringEquals" : {
-            "oidc.eks.${data.aws_region.current.name}.amazonaws.com/id/${var.cluster_oidc_issuer_url}:aud" : "sts.amazonaws.com",
-            "oidc.eks.${data.aws_region.current.name}.amazonaws.com/id/${var.cluster_oidc_issuer_url}:sub" : "system:serviceaccount:${var.namespace}:external-dns"
+            "${local.cluster_oidc_issuer_without_https}:aud" : "sts.amazonaws.com",
+            "${local.cluster_oidc_issuer_without_https}:sub" : "system:serviceaccount:${var.namespace}:external-dns"
           }
         }
       }
@@ -109,7 +109,10 @@ resource "kubectl_manifest" "external_dns_cluster_role" {
 
 resource "kubectl_manifest" "external_dns_cluster_role_binding" {
   count = var.create ? 1 : 0
-  yaml_body = file("external-dns-cluster-role-binding.yaml")
+  yaml_body = templatefile("external-dns-cluster-role-binding.yaml", {
+    serviceAccountName=var.service_account_name,
+    namespace=var.namespace
+  })
 
   depends_on = [ kubectl_manifest.external_dns_cluster_role ]
 }
@@ -117,8 +120,10 @@ resource "kubectl_manifest" "external_dns_cluster_role_binding" {
 resource "kubectl_manifest" "external_dns_deployment" {
   count = var.create ? 1 : 0
   yaml_body = templatefile("external-dns-deployment.yaml", {
+    serviceAccountName=var.service_account_name,
     domainFilter=var.domain_filter,
-    awsRegion=data.aws_region.current.name
+    awsRegion=data.aws_region.current.name,
+    namespace=var.namespace
   })
   depends_on = [ kubectl_manifest.external_dns_service_account ]
 }

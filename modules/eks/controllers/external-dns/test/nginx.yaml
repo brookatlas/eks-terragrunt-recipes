@@ -23,6 +23,7 @@ metadata:
   name: nginx
   annotations:
     external-dns.alpha.kubernetes.io/hostname: app.testme-brookatlas.com
+    service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
 spec:
   selector:
     app: nginx

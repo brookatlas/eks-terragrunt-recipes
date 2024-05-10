@@ -49,3 +49,7 @@ variable "vpc_id" {
     type = string
     description = "vpc id where eks cluster is deployed onto"
 }
+
+locals {
+    cluster_oidc_issuer_without_https = replace(var.cluster_oidc_issuer_url, "https://", "")
+}

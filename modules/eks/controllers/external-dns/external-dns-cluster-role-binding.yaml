@@ -8,5 +8,5 @@ roleRef:
   name: external-dns
 subjects:
 - kind: ServiceAccount
-  name: external-dns
-  namespace: default
+  name: ${serviceAccountName}
+  namespace: ${namespace}
