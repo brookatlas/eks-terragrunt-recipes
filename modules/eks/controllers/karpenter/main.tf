@@ -90,3 +90,23 @@ resource "kubectl_manifest" "karpenter_node_pool" {
     kubectl_manifest.karpenter_node_class
   ]
 }
+
+
+resource "kubectl_manifest" "karpenter_addons_node_class" {
+  yaml_body = templatefile("${path.module}/nodeclasses/addons-node-class.yaml", {
+    nodeIamRoleName: module.karpenter[0].node_iam_role_name,
+    clusterName: var.cluster_name,
+  })
+
+  depends_on = [
+    helm_release.karpenter
+  ]
+}
+
+resource "kubectl_manifest" "karpenter_addons_node_pool" {
+  yaml_body = templatefile("${path.module}/nodepools/kube-addons-node-pool.yaml", {})
+
+  depends_on = [
+    kubectl_manifest.karpenter_addons_node_class
+  ]
+}
