@@ -1,13 +1,15 @@
 ### description
+a production ready terragrunt stack for deploying a Production ready, Private EKS on AWS.
 
-an example terragrunt stack for deploying a eks cluster, with the following basic add-ons:
-* vpc-cni
-* coredns
-* alb-ingress-controller
-* external-dns
-* ebs-csi controller
-* efs-csi controller
-* karpenter
+## what this stack do?
+the cluster includes the most popular/used sets of extensions/controllers:
+* vpc-cni - for configuring network security between workloads/pods
+* coredns - mandatory
+* alb-ingress-controller - for configuring inbound access to services(load balancer/app load balancer)
+* external-dns - for configuring dns across services
+* ebs-csi controller - for allocating EBS volumes via EKS
+* efs-csi controller - for allocating EFS volumes via EKS
+* karpenter - for fast and cost effective provisioning, allocation and management of EKS nodes
 
 
 ## how to use
