@@ -16,9 +16,14 @@ an example terragrunt stack for deploying a eks cluster, with the following basi
 * eks/bastion
 * eks/cluster
 
-2. then, make sure you have access to the cluster(able run the following 2 commands):
+2. then, connect to the bastion host via ssm manager
+3. then, make sure you have access to the cluster(able run the following 2 commands):
 aws eks update-kubeconfig --region region-code --name my-cluster
 kubectl get pods
+4. clone the repo to the bastion host
+5. then run the rest of the modules under "cluster/controllers" from the bastion host
+6. happy k8s operations!
 
-3. then run the rest of the modules under "cluster/controllers"
-4. happy k8s operations!
+
+example diagram of the deployed architecture:
+![Alt text](./eks-terragrunt-recipes-diagram.svg)
