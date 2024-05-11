@@ -27,6 +27,16 @@ variable "allow_current_ip_public_access" {
   default = false
 }
 
+variable "bastion_role_arn" {
+  type = string
+  description = "bastion role arn"
+}
+
+variable "bastion_security_group_id" {
+  type = string
+  description = "bastion security group id"
+}
+
 variable "managed_node_groups" {
   type = map(object({
     min_size = number

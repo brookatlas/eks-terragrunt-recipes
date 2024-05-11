@@ -47,6 +47,23 @@ module "eks" {
     }
   }
 
+  access_entries = {
+    bastion_host = {
+      principal_arn = var.bastion_role_arn
+      kubernetes_groups = []
+      type = "EC2_LINUX"
+    }
+  }
+
+  cluster_security_group_additional_rules = {
+    allow_ingress_bastion = {
+      type = "ingress"
+      to_port = 443
+      from_port = 443
+      protocol = "TCP"
+      source_security_group_id = var.bastion_security_group_id
+    }
+  }  
   fargate_profile_defaults = {
     node_iam_role_additional_policies = {
       additional = ""
