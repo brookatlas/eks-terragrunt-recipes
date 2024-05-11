@@ -25,5 +25,7 @@ kubectl get pods
 6. happy k8s operations!
 
 
-example diagram of the deployed architecture:
+### example diagram of the deployed architecture
+
+
 ![Alt text](./eks-terragrunt-recipes-diagram.svg)
