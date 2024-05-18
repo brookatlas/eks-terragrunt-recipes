@@ -2,6 +2,7 @@
 
 # remove old aws-cli
 sudo yum remove awscli
+sudo rm -rf /bin/aws /usr/bin/aws
 
 # install new-aws-cli
 cd /home/ec2-user

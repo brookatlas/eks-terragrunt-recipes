@@ -17,6 +17,11 @@ resource "aws_instance" "eks_bastion" {
 
 
   user_data = file("${path.module}/bastion-startup.sh")
+  lifecycle {
+    ignore_changes = [ 
+      user_data
+     ]
+  }
 }
 
 resource "aws_security_group" "eks_bastion_security_group" {

@@ -36,14 +36,10 @@ resource "aws_iam_role" "bastion_ec2_role" {
     ]
     }
   )
-  managed_policy_arns = [data.aws_iam_policy.base_ssm_ec2_policy[count.index].arn]
-}
-
-resource "aws_iam_policy_attachment" "attach_aws_eks_policy_to_bastion_role" {
-  count      = var.create ? 1 : 0
-  name       = "attach-eks-access-to-bastion-role"
-  policy_arn = aws_iam_policy.allow_eks_access[count.index].arn
-  roles      = [aws_iam_role.bastion_ec2_role[count.index].name]
+  managed_policy_arns = [
+    data.aws_iam_policy.base_ssm_ec2_policy[count.index].arn,
+    aws_iam_policy.allow_eks_access[count.index].arn
+  ]
 }
 
 resource "aws_iam_instance_profile" "bastion_ec2_instance_profile" {
