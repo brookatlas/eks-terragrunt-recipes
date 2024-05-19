@@ -6,6 +6,10 @@ variable "cluster_name" {
     type = string
 }
 
+variable "cluster_primary_security_group_id" {
+    type = string
+}
+
 variable "cluster_oidc_issuer_url" {
     type = string
     description = "openid connect issuer URL of EKS cluster"

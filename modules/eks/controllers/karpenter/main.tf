@@ -76,6 +76,7 @@ resource "kubectl_manifest" "karpenter_node_class" {
   yaml_body = templatefile("${path.module}/nodeclasses/default-node-class.yaml", {
     nodeIamRoleName: module.karpenter[0].node_iam_role_name,
     clusterName: var.cluster_name,
+    securityGroupId: var.cluster_primary_security_group_id
   })
 
   depends_on = [
